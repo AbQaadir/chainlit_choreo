@@ -1,40 +1,31 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim as build-env
+# Copyright (c) 2023, WSO2 LLC. (https://www.wso2.com/) All Rights Reserved.
 
-# Set the working directory in the container
-WORKDIR /app
+# WSO2 LLC. licenses this file to you under the Apache License,
+# Version 2.0 (the "License"); you may not use this file except
+# in compliance with the License.
+# You may obtain a copy of the License at
 
-# Copy the requirements file into the container
-COPY requirements.txt .
+# http://www.apache.org/licenses/LICENSE-2.0
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
 
-# Create a new user with UID 10014
-RUN addgroup -g 10014 choreo && \
-    adduser --disabled-password --no-create-home --uid 10014 --ingroup choreo choreouser
+FROM python:alpine
 
-# Copy the rest of the application code into the container
+WORKDIR /python-docker
+
+COPY requirements.txt requirements.txt
+RUN pip3 install -r requirements.txt
+
 COPY . .
-
-# Run the application
-CMD ["python", "hello.py"]
-
-# Use a lightweight base image for the final stage
-FROM python:3.11-slim
-
-# Copy the built application from the build stage
-COPY --from=build-env /app /app
-
-# Set the working directory
-WORKDIR /app
-
-# Switch to the non-root user
-USER 10014
-
-
-# Expose the port the app runs on
+RUN ls
+# Create a new user with UID 10016
+RUN addgroup -g 10016 choreo && \
+    adduser  --disabled-password  --no-create-home --uid 10016 --ingroup choreo choreouser
+USER 10016
 EXPOSE 5000
-
-# Run the application
-CMD ["python", "hello.py"]
+CMD ["python3", "hello.py"]
